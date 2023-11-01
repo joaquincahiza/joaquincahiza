@@ -1,0 +1,517 @@
+\rtf1\ansi\ansicpg1252\cocoartf2706
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fmodern\fcharset0 CourierNewPSMT;}
+{\colortbl;\red255\green255\blue255;\red255\green255\blue255;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\cssrgb\c100000\c100000\c100000;\cssrgb\c0\c0\c0;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\deftab720
+\pard\pardeftab720\partightenfactor0
+
+\f0\fs28 \cf0 \cb2 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec3 <!DOCTYPE html>\
+<html lang="en">\
+    <head>\
+        <meta charset="UTF-8" />\
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />\
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>\
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>\
+        <style>\
+            @import url("https://fonts.googleapis.com/css2?family=Roboto");\
+            * \{\
+                margin: 0;\
+                padding: 0;\
+                --sb-track-color: #eee;\
+                --sb-thumb-color: #d4d4d4;\
+                --sb-size: 6px;\
+            \}\
+\
+            body \{\
+                overflow: auto;\
+\
+                scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);\
+            \}\
+\
+            body::-webkit-scrollbar \{\
+                width: var(--sb-size);\
+                height: var(--sb-size);\
+            \}\
+\
+            body::-webkit-scrollbar-track \{\
+                background: var(--sb-track-color);\
+                border-radius: 10px;\
+            \}\
+\
+            body::-webkit-scrollbar-thumb \{\
+                background: var(--sb-thumb-color);\
+                border-radius: 10px;\
+            \}\
+\
+            body \{\
+                padding: 1rem;\
+                font-family: "Roboto", sans-serif;\
+                box-sizing: border-box;\
+                justify-content: center;\
+                align-items: center;\
+                display: flex;\
+                flex-direction: column;\
+                font-size: 10px;\
+            \}\
+\
+            .chart-card \{\
+                padding: 10px;\
+                border-radius: 10px;\
+                background-color: white;\
+                width: 100%;\
+            \}\
+\
+            .chart-container \{\
+                border-top: 1px solid #c3db50;\
+                position: relative;\
+                width: 100%;\
+                height: 100%;\
+            \}\
+\
+            .chart-header \{\
+                display: flex;\
+                justify-content: space-between;\
+                padding: 5px;\
+            \}\
+\
+            h1 \{\
+                margin-bottom: 3px;\
+                user-select: none;\
+            \}\
+\
+            .pieLegend li span \{\
+                display: inline-block;\
+                width: 12px;\
+                height: 12px;\
+                margin-right: 5px;\
+            \}\
+\
+            select,\
+            select:active,\
+            select:hover,\
+            select:focus \{\
+                border: none;\
+                outline: none;\
+            \}\
+        </style>\
+    </head>\
+    <body>\
+        <div class="chart-card">\
+            <div class="chart-header">\
+                <h1>Stock</h1>\
+                <select onchange="switchcity(this.value)">\
+                    <option value="Madrid">Madrid</option>\
+                    <option value="Barcelona">Barcelona</option>\
+                </select>\
+            </div>\
+            <div class="chart-container">\
+                <canvas id="chart1"></canvas>\
+            </div>\
+\
+            <h1>Precios</h1>\
+            <div class="chart-container">\
+                <canvas id="chart2"></canvas>\
+            </div>\
+        </div>\
+        <script defer>\
+            const ctx1 = document.getElementById("chart1");\
+            const ctx2 = document.getElementById("chart2");\
+\
+            const stockEvolution = [\
+                \{\
+                    Trimestre: "1T21",\
+                    Madrid: 52468,\
+                    Barcelona: 71773,\
+                \},\
+                \{\
+                    Trimestre: "2T21",\
+                    Madrid: 49075,\
+                    Barcelona: 68317,\
+                \},\
+                \{\
+                    Trimestre: "3T21",\
+                    Madrid: 47998,\
+                    Barcelona: 68347,\
+                \},\
+                \{\
+                    Trimestre: "4T21",\
+                    Madrid: 44573,\
+                    Barcelona: 69258,\
+                \},\
+                \{\
+                    Trimestre: "1T22",\
+                    Madrid: 41973,\
+                    Barcelona: 69508,\
+                \},\
+                \{\
+                    Trimestre: "2T22",\
+                    Madrid: 41770,\
+                    Barcelona: 65488,\
+                \},\
+                \{\
+                    Trimestre: "3T22",\
+                    Madrid: 45629,\
+                    Barcelona: 65510,\
+                \},\
+                \{\
+                    Trimestre: "4T22",\
+                    Madrid: 46292,\
+                    Barcelona: 67897,\
+                \},\
+                \{\
+                    Trimestre: "1T23",\
+                    Madrid: 45329,\
+                    Barcelona: 66784,\
+                \},\
+                \{\
+                    Trimestre: "2T23",\
+                    Madrid: 45140,\
+                    Barcelona: 67041,\
+                \},\
+                \{\
+                    Trimestre: "3T23",\
+                    Madrid: 44978,\
+                    Barcelona: 68538,\
+                \},\
+            ];\
+\
+            const priceEvolution = [\
+                \{\
+                    Trimestre: "1T21",\
+                    Madrid: 2980,\
+                    Barcelona: 2748,\
+                \},\
+                \{\
+                    Trimestre: "2T21",\
+                    Madrid: 3002,\
+                    Barcelona: 2737,\
+                \},\
+                \{\
+                    Trimestre: "3T21",\
+                    Madrid: 3066,\
+                    Barcelona: 2746,\
+                \},\
+                \{\
+                    Trimestre: "4T21",\
+                    Madrid: 3060,\
+                    Barcelona: 2726,\
+                \},\
+                \{\
+                    Trimestre: "1T22",\
+                    Madrid: 3092,\
+                    Barcelona: 2732,\
+                \},\
+                \{\
+                    Trimestre: "2T22",\
+                    Madrid: 3155,\
+                    Barcelona: 2749,\
+                \},\
+                \{\
+                    Trimestre: "3T22",\
+                    Madrid: 3217,\
+                    Barcelona: 2759,\
+                \},\
+                \{\
+                    Trimestre: "4T22",\
+                    Madrid: 3262,\
+                    Barcelona: 2776,\
+                \},\
+                \{\
+                    Trimestre: "1T23",\
+                    Madrid: 3284,\
+                    Barcelona: 2731,\
+                \},\
+                \{\
+                    Trimestre: "2T23",\
+                    Madrid: 3363,\
+                    Barcelona: 2761,\
+                \},\
+                \{\
+                    Trimestre: "3T23",\
+                    Madrid: 3451,\
+                    Barcelona: 2697,\
+                \},\
+            ];\
+\
+            let defaultCity = "Madrid";\
+\
+            function switchcity(city) \{\
+                defaultCity = city;\
+                chart1.data.datasets[0].data = stockEvolution.map((e) => e[city]);\
+                chart2.data.datasets[0].data = priceEvolution.map((e) => e[city]);\
+                chart1.update();\
+                chart2.update();\
+            \}\
+\
+            const customTitle = \{\
+                id: "customTitle",\
+                beforeLayout: (chart, args, opts) => \{\},\
+                afterDraw: (chart, args, opts) => \{\
+                    const \{\
+                        ctx,\
+                        scales: \{ y \},\
+                        chartArea: \{ top \},\
+                    \} = chart;\
+\
+                    if (opts.y.display) \{\
+                        // Draw the y-axis title\
+                        ctx.fillStyle = opts.y.color || Chart.defaults.color;\
+                        ctx.font = opts.y.font || '12px "Helvetica Neue", Helvetica, Arial, sans-serif';\
+                        ctx.fillText(opts.y.text, opts.y.offsetX || 3, top + (opts.y.offsetY || -15));\
+\
+                        // Draw a circle after the title\
+                        const circleRadius = 5; // Adjust the circle's radius as needed\
+                        const titleWidth = ctx.measureText(opts.y.text).width;\
+                        const circleX = opts.y.offsetX + titleWidth + circleRadius + 10; // Adjust the positioning\
+                        const circleY = top - 4 + (opts.y.offsetY || -15);\
+\
+                        ctx.beginPath();\
+                        ctx.arc(circleX, circleY, circleRadius, 0, 2 * Math.PI);\
+                        ctx.fillStyle = "#8b8b89"; // Change the circle's color\
+                        ctx.fill();\
+                        ctx.closePath();\
+\
+                        // Draw the  text\
+                        ctx.fillStyle = opts.y.color || Chart.defaults.color;\
+                        ctx.font = opts.y.font || '12px "Helvetica Neue", Helvetica, Arial, sans-serif';\
+                        ctx.fillText(defaultCity, opts.y.offsetX + 76 || 3, top + (opts.y.offsetY || -15));\
+\
+                        // Define the position of the  text\
+                        const cityTextX = opts.y.offsetX + 76; // Adjust the x-position as needed\
+                        const cityTextY = top + (opts.y.offsetY || -15); // Adjust the y-position as needed\
+\
+                        const canvasElement = chart.canvas; // Define the canvas element\
+                    \}\
+                \},\
+            \};\
+\
+            function transformTrimesterToDate(trimester) \{\
+                const [quarter, year] = trimester.match(/(\\d+)T(\\d+)/).slice(1, 3);\
+                const startMonth = (parseInt(quarter) - 1) * 3 + 1;\
+                const date = new Date(`20$\{year\}-$\{startMonth.toString().padStart(2, "0")\}-01`);\
+                return date;\
+            \}\
+\
+            let chart1 = new Chart(ctx1, \{\
+                type: "line",\
+                data: \{\
+                    labels: stockEvolution.map((e) => transformTrimesterToDate(e.Trimestre)),\
+                    datasets: [\
+                        \{\
+                            label: "Provincias",\
+                            data: stockEvolution.map((e) => e["Madrid"]),\
+                            fill: false,\
+                            borderColor: "#8b8b89",\
+                            tension: 0.1,\
+                            pointRadius: 1.5,\
+                            pointBackgroundColor: "#8b8b89",\
+                            pointBorderColor: "#8b8b89",\
+                            spanGaps: true,\
+                        \},\
+                    ],\
+                \},\
+                options: \{\
+                    layout: \{\
+                        padding: \{\
+                            left: 1,\
+                            top: 40,\
+                        \},\
+                    \},\
+                    plugins: \{\
+                        legend: \{\
+                            display: false,\
+                            align: "start",\
+                            labels: \{\
+                                boxWidth: 6,\
+                                boxHeight: 6,\
+                                usePointStyle: true,\
+                                useBorderRadius: false,\
+                            \},\
+                        \},\
+                        customTitle: \{\
+                            y: \{\
+                                display: true,\
+                                text: "Provincias",\
+                                offsetX: 8,\
+                                offsetY: 0,\
+                            \},\
+                        \},\
+                    \},\
+                    maintainAspectRatio: true,\
+                    responsive: true,\
+                    scales: \{\
+                        y: \{\
+                            beginAtZero: false,\
+                            grid: \{\
+                                drawBorder: false,\
+                                display: true,\
+                                drawTicks: false,\
+                            \},\
+                            ticks: \{\
+                                padding: 10,\
+                                font: \{\
+                                    size: 11,\
+                                    family: "'Roboto','Arial', sans-serif",\
+                                \},\
+                                callback: function (value, index, ticks) \{\
+                                    const formattedValue = value.toLocaleString("en-US");\
+                                    return formattedValue;\
+                                \},\
+                            \},\
+                            border: \{\
+                                display: false,\
+                                dash: [2, 4],\
+                            \},\
+                        \},\
+                        x: \{\
+                            type: "time",\
+                            clip: true,\
+                            beginAtZero: true,\
+                            grid: \{\
+                                display: false,\
+                            \},\
+                            border: \{\
+                                display: false,\
+                                dash: [2, 4],\
+                            \},\
+                            time: \{\
+                                unit: "month",\
+                                stepSize: 6,\
+                            \},\
+                            ticks: \{\
+                                padding: 20,\
+                                stepSize: 6,\
+                                font: \{\
+                                    size: 11,\
+                                    family: "'Roboto','Arial', sans-serif",\
+                                \},\
+                            \},\
+                        \},\
+                    \},\
+                \},\
+                plugins: [customTitle],\
+            \});\
+\
+            const chart2 = new Chart(ctx2, \{\
+                type: "line",\
+                data: \{\
+                    labels: priceEvolution.map((e) => transformTrimesterToDate(e.Trimestre)),\
+                    datasets: [\
+                        \{\
+                            label: "Provincias",\
+                            data: priceEvolution.map((e) => e["Madrid"]),\
+                            fill: false,\
+                            borderColor: "#8b8b89",\
+                            tension: 0.1,\
+                            pointRadius: 1,\
+                            pointBackgroundColor: "#8b8b89",\
+                            pointBorderColor: "#8b8b89",\
+                            spanGaps: true,\
+                        \},\
+                    ],\
+                \},\
+                options: \{\
+                    layout: \{\
+                        padding: \{\
+                            left: 1,\
+                            top: 40,\
+                        \},\
+                    \},\
+                    plugins: \{\
+                        legend: \{\
+                            display: false,\
+                            align: "start",\
+                            labels: \{\
+                                boxWidth: 6,\
+                                boxHeight: 6,\
+                                usePointStyle: true,\
+                                useBorderRadius: false,\
+                            \},\
+                        \},\
+                        customTitle: \{\
+                            y: \{\
+                                display: true,\
+                                text: "Provincias",\
+                                offsetX: 8,\
+                                offsetY: 0,\
+                            \},\
+                        \},\
+                    \},\
+                    maintainAspectRatio: true,\
+                    responsive: true,\
+                    scales: \{\
+                        y: \{\
+                            beginAtZero: false,\
+                            grid: \{\
+                                drawBorder: false,\
+                                display: true,\
+                                drawTicks: false,\
+                            \},\
+                            ticks: \{\
+                                padding: 10,\
+                                font: \{\
+                                    size: 11,\
+                                    family: "'Roboto','Arial', sans-serif",\
+                                \},\
+                                callback: function (value, index, ticks) \{\
+                                    // Format the value with a comma as a thousands separator\
+                                    const formattedValue = value.toLocaleString("en-US") + " \'80";\
+                                    return formattedValue;\
+                                \},\
+                            \},\
+                            border: \{\
+                                display: false,\
+                                dash: [2, 4],\
+                            \},\
+                        \},\
+                        x: \{\
+                            type: "time",\
+                            clip: true,\
+                            beginAtZero: true,\
+                            grid: \{\
+                                display: false,\
+                            \},\
+                            border: \{\
+                                display: false,\
+                                dash: [2, 4],\
+                            \},\
+                            time: \{\
+                                unit: "month",\
+                                stepSize: 6,\
+                            \},\
+                            ticks: \{\
+                                padding: 0,\
+                                stepSize: 6,\
+                                font: \{\
+                                    size: 11,\
+                                    family: "'Roboto','Arial', sans-serif",\
+                                \},\
+                            \},\
+                        \},\
+                    \},\
+                \},\
+                plugins: [customTitle],\
+            \});\
+\
+            window.addEventListener("beforeprint", () => \{\
+                for (let id in Chart.instances) \{\
+                    Chart.instances[id].resize();\
+                \}\
+            \});\
+            window.addEventListener("afterprint", () => \{\
+                for (let id in Chart.instances) \{\
+                    Chart.instances[id].resize();\
+                \}\
+            \});\
+\
+            window.addEventListener("resize", () => \{\
+                for (let id in Chart.instances) \{\
+                    Chart.instances[id].resize();\
+                \}\
+            \});\
+        </script>\
+    </body>\
+</html>\
+}
